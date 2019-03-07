@@ -28,9 +28,9 @@ public class SenderGUI extends JFrame implements ActionListener {
 	static JLabel datagramSize = new JLabel("Datagram Size:");
 	static JLabel timeoutLabel = new JLabel("Timeout (milliseconds):");
 	static JTextField fileText = new JTextField();
-	static JTextField rcvrIPText = new JTextField("127.0.0.1");
-	static JTextField rcvrPortText = new JTextField("9898");
-	static JTextField sndrPortText = new JTextField("9899");
+	static JTextField rcvrIPText = new JTextField();
+	static JTextField rcvrPortText = new JTextField();
+	static JTextField sndrPortText = new JTextField();
 	static JTextField datagramText = new JTextField();
 	static JTextField timeoutText = new JTextField();
 	static TextArea textArea = new TextArea();
@@ -52,6 +52,7 @@ public class SenderGUI extends JFrame implements ActionListener {
 	static int acked[];
 	static Thread thread;
 	static boolean transfering = false;
+	static int lost = 0;
 
 	public SenderGUI() {
 		this.setBounds(100, 100, 400, 200);
@@ -136,6 +137,7 @@ public class SenderGUI extends JFrame implements ActionListener {
 					int count = 0;
 
 					while (transfering) {
+						textArea.setText("Transfering...");
 						transfering = false;
 
 						try {
@@ -160,7 +162,13 @@ public class SenderGUI extends JFrame implements ActionListener {
 							}
 
 						}  catch (SocketTimeoutException i) {
-							textArea.setText("Receive timedout.");
+							lost++;
+						}
+
+						for (int i = 0; i < acked.length; i++) {
+							if (acked[i] == 0) {
+								transfering = true;
+							}
 						}
 					}
 
@@ -170,7 +178,8 @@ public class SenderGUI extends JFrame implements ActionListener {
 					DatagramPacket done = new DatagramPacket(b, 4);
 					socket.send(done);
 					trnsTime = System.currentTimeMillis() - trnsTime;
-					textArea.setText(String.format("It took %dms to transfer the file.", trnsTime));
+					textArea.setText(String.format("%d packets were lost and resent.\n", lost)
+									+ String.format("It took %dms to transfer the file.", trnsTime));
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null,
@@ -260,6 +269,7 @@ public class SenderGUI extends JFrame implements ActionListener {
 			makeConnection();
 
 		} else if (button.equals("Transfer")) {
+			lost = 0;
 			transferFile();
 
 		} else if (button.equals("Disconnect")) {
