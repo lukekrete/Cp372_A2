@@ -1,5 +1,3 @@
-package ass;
-
 import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
@@ -213,9 +211,9 @@ public class Receiver extends JFrame implements ActionListener {
 
 	public void makeConnection() {
 		try {
-			socket = new DatagramSocket(Integer.parseInt(SenderportTextField.getText()));
+			socket = new DatagramSocket(Integer.parseInt(RcvPortTextField.getText()));
 			address = InetAddress.getByName(ipTextField.getText());
-			socket.connect(address, Integer.parseInt(RcvPortTextField.getText()));
+			socket.connect(address, Integer.parseInt(SenderportTextField.getText()));
 			fileName = fileNameTextField.getText();
 			frame2.setVisible(false);
 			frame.setVisible(true);
